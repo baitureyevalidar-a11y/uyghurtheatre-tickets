@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import { routing } from '@/i18n/routing';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import Providers from './providers';
 
 export const metadata: Metadata = {
   title: {
@@ -36,6 +37,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     <html lang={locale}>
       <body className="bg-cream text-brown font-body antialiased">
         <NextIntlClientProvider messages={messages}>
+          <Providers>
           <div className="flex min-h-screen flex-col">
             <Header />
             <main className="flex-1">{children}</main>
@@ -53,6 +55,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
               },
             }}
           />
+        </Providers>
         </NextIntlClientProvider>
       </body>
     </html>

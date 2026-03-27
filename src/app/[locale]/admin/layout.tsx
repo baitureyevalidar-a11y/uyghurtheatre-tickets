@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
+import { useSession, signOut } from 'next-auth/react'
 import {
   LayoutDashboard, Calendar, Film, ShoppingBag, RotateCcw,
-  Users, Banknote, Settings, FileText, Menu, X, LogOut, ChevronRight,
+  Users, Banknote, Settings, FileText, Menu, X, LogOut, ChevronRight, Loader2,
 } from 'lucide-react'
 
 const navItems = [
@@ -20,15 +21,43 @@ const navItems = [
   { key: 'audit', href: '/admin/audit', icon: FileText, label: 'Аудит' },
 ]
 
+const ADMIN_ROLES = ['ADMIN', 'SUPER_ADMIN', 'CASHIER']
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
   const locale = useLocale()
+  const router = useRouter()
+  const { data: session, status } = useSession()
 
   const isActive = (href: string) => {
     const fullHref = `/${locale}${href}`
     if (href === '/admin') return pathname === fullHref
     return pathname.startsWith(fullHref)
+  }
+
+  // Loading state
+  if (status === 'loading') {
+    return (
+      <div className="flex h-screen items-center justify-center bg-cream">
+        <Loader2 className="w-8 h-8 text-burgundy animate-spin" />
+      </div>
+    )
+  }
+
+  // Not authenticated or not admin - redirect to login
+  if (!session?.user || !ADMIN_ROLES.includes((session.user as { role?: string }).role || '')) {
+    if (typeof window !== 'undefined') {
+      router.replace(`/${locale}/auth/login?callbackUrl=/${locale}/admin`)
+    }
+    return (
+      <div className="flex h-screen items-center justify-center bg-cream">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-burgundy animate-spin mx-auto mb-4" />
+          <p className="text-brown/60 text-sm">Перенаправление на страницу входа...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -70,12 +99,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div className="absolute bottom-4 left-4 right-4">
-          <a href={`/${locale}`}
-            className="flex items-center gap-2 px-3 py-2 text-white/40 hover:text-white text-sm rounded-lg hover:bg-white/5">
+        <div className="absolute bottom-4 left-4 right-4 space-y-1">
+          <div className="px-3 py-2 text-white/30 text-xs truncate">
+            {session.user.name || (session.user as { fullName?: string }).fullName || session.user.email}
+          </div>
+          <button
+            onClick={() => signOut({ callbackUrl: `/${locale}` })}
+            className="flex items-center gap-2 px-3 py-2 text-white/40 hover:text-white text-sm rounded-lg hover:bg-white/5 w-full"
+          >
             <LogOut className="w-4 h-4" />
             Выйти
-          </a>
+          </button>
         </div>
       </aside>
 
@@ -91,7 +125,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
-          <span className="text-xs px-2 py-1 bg-burgundy/10 text-burgundy rounded-full font-medium">ADMIN</span>
+          <span className="text-xs px-2 py-1 bg-burgundy/10 text-burgundy rounded-full font-medium">
+            {(session.user as { role?: string }).role || 'ADMIN'}
+          </span>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
