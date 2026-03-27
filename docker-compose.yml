@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: theatre
+      POSTGRES_PASSWORD: theatre_password
+      POSTGRES_DB: uyghurtheatre
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgresql://theatre:theatre_password@db:5432/uyghurtheatre
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: your-secret-key-change-in-production
+      QR_HMAC_SECRET: your-qr-hmac-secret-change-in-production
+      SITE_URL: http://localhost:3000
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

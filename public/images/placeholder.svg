@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="560" viewBox="0 0 400 560">
+  <rect width="400" height="560" fill="#F5F0E8"/>
+  <rect x="10" y="10" width="380" height="540" fill="none" stroke="#6B1D2A" stroke-width="2" rx="8"/>
+  <text x="200" y="250" text-anchor="middle" fill="#6B1D2A" font-family="serif" font-size="24">🎭</text>
+  <text x="200" y="290" text-anchor="middle" fill="#3D2B1F" font-family="serif" font-size="16">Ұйғыр театры</text>
+  <text x="200" y="320" text-anchor="middle" fill="#6B1D2A" font-family="sans-serif" font-size="12">Poster Image</text>
+</svg>

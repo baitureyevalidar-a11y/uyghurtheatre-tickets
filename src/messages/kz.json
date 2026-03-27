@@ -1,0 +1,133 @@
+{
+  "nav": {
+    "home": "Басты бет",
+    "events": "Іс-шаралар",
+    "about": "Біз туралы",
+    "contacts": "Байланыс",
+    "myTickets": "Менің билеттерім",
+    "login": "Кіру",
+    "logout": "Шығу",
+    "cart": "Себет",
+    "language": "Тіл"
+  },
+  "home": {
+    "heroTitle": "Ұйғыр театрына қош келдіңіз",
+    "heroSubtitle": "Үздік театр іс-шараларына билеттерді онлайн сатып алыңыз",
+    "upcomingShows": "Жақындағы қойылымдар",
+    "buyTicket": "Билет сатып алу",
+    "allEvents": "Барлық іс-шаралар",
+    "filterByGenre": "Жанры бойынша сүзгі",
+    "filterByDate": "Күні бойынша сүзгі",
+    "priceFrom": "Бастап бағасы"
+  },
+  "event": {
+    "description": "Сипаттама",
+    "duration": "Ұзақтығы",
+    "ageRestriction": "Жас шектеуі",
+    "schedule": "Кесте",
+    "selectSeats": "Орын таңдау",
+    "prices": "Бағалар",
+    "gallery": "Галерея",
+    "genre": {
+      "comedy": "Комедия",
+      "drama": "Драма",
+      "musical": "Мюзикл",
+      "concert": "Концерт",
+      "children": "Балалар",
+      "folklore": "Фольклор",
+      "other": "Басқа"
+    }
+  },
+  "seats": {
+    "selectYourSeats": "Орындарыңызды таңдаңыз",
+    "row": "Қатар",
+    "seat": "Орын",
+    "price": "Баға",
+    "selected": "Таңдалған",
+    "occupied": "Алынған",
+    "available": "Бос",
+    "reserved": "Брондалған",
+    "legend": "Белгі түсіндірмесі",
+    "total": "Жиынтығы",
+    "proceedToCheckout": "Төлемге өту",
+    "timerWarning": "Орындарыңыз {minutes} минуттан кейін босатылады",
+    "minutes": "минут"
+  },
+  "checkout": {
+    "title": "Тапсырысты рәсімдеу",
+    "customerInfo": "Сатып алушы деректері",
+    "fullName": "Толық аты-жөні",
+    "phone": "Телефон нөмірі",
+    "email": "Электрондық пошта",
+    "paymentMethod": "Төлем әдісі",
+    "kaspiPay": "Kaspi Pay",
+    "bankCard": "Банк картасы",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "cash": "Қолма-қол ақша",
+    "reserve": "Брондау",
+    "pay": "Төлеу",
+    "agree": "Мен келісемін",
+    "terms": "Пайдалану шарттары"
+  },
+  "tickets": {
+    "myTickets": "Менің билеттерім",
+    "upcoming": "Алдағы",
+    "past": "Өткен",
+    "download": "Жүктеу",
+    "resend": "Қайта жіберу",
+    "requestRefund": "Қайтаруды сұрау",
+    "orderNumber": "Тапсырыс нөмірі",
+    "status": {
+      "active": "Белсенді",
+      "used": "Пайдаланылған",
+      "cancelled": "Болдырылмаған",
+      "pending": "Күтілуде",
+      "refunded": "Қайтарылған"
+    }
+  },
+  "refund": {
+    "requestRefund": "Қайтаруды сұрау",
+    "reason": "Себеп",
+    "submit": "Жіберу",
+    "rules": "Қайтару ережелері",
+    "policyDescription": "Билеттерді қойылым басталғанға дейін 24 сағат бұрын қайтаруға болады. Қайтарылатын сома 3-5 жұмыс күні ішінде шотыңызға есептеледі.",
+    "policyNote": "Қойылым басталғаннан кейін билеттерді қайтаруға болмайды."
+  },
+  "auth": {
+    "login": "Кіру",
+    "register": "Тіркелу",
+    "phone": "Телефон нөмірі",
+    "password": "Құпия сөз",
+    "confirmPassword": "Құпия сөзді растау",
+    "forgotPassword": "Құпия сөзді ұмыттым",
+    "smsCode": "SMS коды",
+    "fullName": "Толық аты-жөні",
+    "noAccount": "Тіркелгіңіз жоқ па?",
+    "hasAccount": "Тіркелгіңіз бар ма?",
+    "invalidCredentials": "Телефон немесе құпия сөз қате",
+    "loginError": "Кіру қатесі",
+    "registerError": "Тіркелу қатесі",
+    "passwordMismatch": "Құпия сөздер сәйкес келмейді"
+  },
+  "common": {
+    "loading": "Жүктелуде...",
+    "error": "Қате",
+    "success": "Сәтті орындалды",
+    "cancel": "Болдырмау",
+    "save": "Сақтау",
+    "delete": "Жою",
+    "back": "Артқа",
+    "next": "Келесі",
+    "search": "Іздеу",
+    "noResults": "Нәтиже табылмады",
+    "currency": "₸"
+  },
+  "footer": {
+    "address": "Алматы, Наурызбай батыр көшесі, 83",
+    "phone": "Телефон",
+    "email": "Электрондық пошта",
+    "socialMedia": "Әлеуметтік желілер",
+    "rights": "© {year} Ұйғыр театры. Барлық құқықтар қорғалған."
+  }
+}
