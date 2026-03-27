@@ -92,37 +92,43 @@ export default async function EventsPage({ params, searchParams }: PageProps) {
     ? (genreParam as Genre)
     : undefined
 
-  const events = await prisma.event.findMany({
-    where: {
-      isActive: true,
-      isDeleted: false,
-      ...(genreFilter ? { genre: genreFilter } : {}),
-      shows: {
-        some: {
-          dateTime: { gte: now },
-          status: { notIn: ['CANCELLED', 'COMPLETED'] },
-        },
-      },
-    },
-    include: {
-      shows: {
-        where: {
-          dateTime: { gte: now },
-          status: { notIn: ['CANCELLED', 'COMPLETED'] },
-        },
-        orderBy: { dateTime: 'asc' },
-        take: 1,
-        include: {
-          priceTiers: {
-            select: { price: true },
-            orderBy: { price: 'asc' },
-            take: 1,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let events: any[] = []
+  try {
+    events = await prisma.event.findMany({
+      where: {
+        isActive: true,
+        isDeleted: false,
+        ...(genreFilter ? { genre: genreFilter } : {}),
+        shows: {
+          some: {
+            dateTime: { gte: now },
+            status: { notIn: ['CANCELLED', 'COMPLETED'] },
           },
         },
       },
-    },
-    orderBy: { createdAt: 'desc' },
-  })
+      include: {
+        shows: {
+          where: {
+            dateTime: { gte: now },
+            status: { notIn: ['CANCELLED', 'COMPLETED'] },
+          },
+          orderBy: { dateTime: 'asc' },
+          take: 1,
+          include: {
+            priceTiers: {
+              select: { price: true },
+              orderBy: { price: 'asc' },
+              take: 1,
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+  } catch {
+    // DB not ready yet
+  }
 
   type EventItem = (typeof events)[number]
 

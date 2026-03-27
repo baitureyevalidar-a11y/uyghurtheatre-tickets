@@ -9,19 +9,23 @@ import EventCard from '@/components/events/EventCard';
 import EventFilters from '@/components/events/EventFilters';
 
 async function getUpcomingShows() {
-  return prisma.show.findMany({
-    where: {
-      status: 'ON_SALE',
-      dateTime: { gt: new Date() },
-    },
-    include: {
-      event: true,
-      hall: true,
-      priceTiers: true,
-    },
-    orderBy: { dateTime: 'asc' },
-    take: 6,
-  });
+  try {
+    return await prisma.show.findMany({
+      where: {
+        status: 'ON_SALE',
+        dateTime: { gt: new Date() },
+      },
+      include: {
+        event: true,
+        hall: true,
+        priceTiers: true,
+      },
+      orderBy: { dateTime: 'asc' },
+      take: 6,
+    });
+  } catch {
+    return [];
+  }
 }
 
 export default async function HomePage() {
