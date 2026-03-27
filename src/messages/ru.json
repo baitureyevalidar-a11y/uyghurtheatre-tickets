@@ -1,0 +1,133 @@
+{
+  "nav": {
+    "home": "Главная",
+    "events": "Мероприятия",
+    "about": "О нас",
+    "contacts": "Контакты",
+    "myTickets": "Мои билеты",
+    "login": "Войти",
+    "logout": "Выйти",
+    "cart": "Корзина",
+    "language": "Язык"
+  },
+  "home": {
+    "heroTitle": "Добро пожаловать в Уйгурский театр",
+    "heroSubtitle": "Покупайте билеты на лучшие театральные мероприятия онлайн",
+    "upcomingShows": "Ближайшие спектакли",
+    "buyTicket": "Купить билет",
+    "allEvents": "Все мероприятия",
+    "filterByGenre": "Фильтр по жанру",
+    "filterByDate": "Фильтр по дате",
+    "priceFrom": "Цена от"
+  },
+  "event": {
+    "description": "Описание",
+    "duration": "Продолжительность",
+    "ageRestriction": "Возрастное ограничение",
+    "schedule": "Расписание",
+    "selectSeats": "Выбрать места",
+    "prices": "Цены",
+    "gallery": "Галерея",
+    "genre": {
+      "comedy": "Комедия",
+      "drama": "Драма",
+      "musical": "Мюзикл",
+      "concert": "Концерт",
+      "children": "Детский",
+      "folklore": "Фольклор",
+      "other": "Другое"
+    }
+  },
+  "seats": {
+    "selectYourSeats": "Выберите места",
+    "row": "Ряд",
+    "seat": "Место",
+    "price": "Цена",
+    "selected": "Выбрано",
+    "occupied": "Занято",
+    "available": "Свободно",
+    "reserved": "Забронировано",
+    "legend": "Легенда",
+    "total": "Итого",
+    "proceedToCheckout": "Перейти к оплате",
+    "timerWarning": "Ваши места будут освобождены через {minutes} минут",
+    "minutes": "минут"
+  },
+  "checkout": {
+    "title": "Оформление заказа",
+    "customerInfo": "Данные покупателя",
+    "fullName": "Полное имя",
+    "phone": "Номер телефона",
+    "email": "Электронная почта",
+    "paymentMethod": "Способ оплаты",
+    "kaspiPay": "Kaspi Pay",
+    "bankCard": "Банковская карта",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "cash": "Наличные",
+    "reserve": "Забронировать",
+    "pay": "Оплатить",
+    "agree": "Я согласен",
+    "terms": "Условия использования"
+  },
+  "tickets": {
+    "myTickets": "Мои билеты",
+    "upcoming": "Предстоящие",
+    "past": "Прошедшие",
+    "download": "Скачать",
+    "resend": "Отправить повторно",
+    "requestRefund": "Запросить возврат",
+    "orderNumber": "Номер заказа",
+    "status": {
+      "active": "Активный",
+      "used": "Использован",
+      "cancelled": "Отменён",
+      "pending": "Ожидает",
+      "refunded": "Возвращён"
+    }
+  },
+  "refund": {
+    "requestRefund": "Запросить возврат",
+    "reason": "Причина",
+    "submit": "Отправить",
+    "rules": "Правила возврата",
+    "policyDescription": "Билеты можно вернуть не позднее чем за 24 часа до начала спектакля. Сумма возврата будет зачислена на ваш счёт в течение 3–5 рабочих дней.",
+    "policyNote": "Возврат билетов после начала спектакля не производится."
+  },
+  "auth": {
+    "login": "Войти",
+    "register": "Зарегистрироваться",
+    "phone": "Номер телефона",
+    "password": "Пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "forgotPassword": "Забыли пароль?",
+    "smsCode": "SMS-код",
+    "fullName": "Полное имя",
+    "noAccount": "Нет аккаунта?",
+    "hasAccount": "Уже есть аккаунт?",
+    "invalidCredentials": "Неверный телефон или пароль",
+    "loginError": "Ошибка входа",
+    "registerError": "Ошибка регистрации",
+    "passwordMismatch": "Пароли не совпадают"
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "back": "Назад",
+    "next": "Далее",
+    "search": "Поиск",
+    "noResults": "Результаты не найдены",
+    "currency": "₸"
+  },
+  "footer": {
+    "address": "Алматы, ул. Наурызбай батыра, 83",
+    "phone": "Телефон",
+    "email": "Электронная почта",
+    "socialMedia": "Социальные сети",
+    "rights": "© {year} Уйгурский театр. Все права защищены."
+  }
+}

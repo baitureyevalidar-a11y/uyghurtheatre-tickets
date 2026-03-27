@@ -1,0 +1,133 @@
+{
+  "nav": {
+    "home": "باش بەت",
+    "events": "تەدبىرلەر",
+    "about": "بىز ھەققىمىزدە",
+    "contacts": "ئالاقە",
+    "myTickets": "مېنىڭ بىلەتلىرىم",
+    "login": "كىرىش",
+    "logout": "چىقىش",
+    "cart": "سەتكىل",
+    "language": "تىل"
+  },
+  "home": {
+    "heroTitle": "ئۇيغۇر تىياتىرىغا خوش كەلدىڭىز",
+    "heroSubtitle": "ئەڭ ياخشى تىياترو تەدبىرلىرىنىڭ بىلەتلىرىنى ئىنتېرنېت ئارقىلىق سېتىۋېلىڭ",
+    "upcomingShows": "يېقىنقى تاماشىلار",
+    "buyTicket": "بىلەت سېتىۋېلىش",
+    "allEvents": "بارلىق تەدبىرلەر",
+    "filterByGenre": "تۈرى بويىچە سۈزگۈچ",
+    "filterByDate": "چېسلا بويىچە سۈزگۈچ",
+    "priceFrom": "باھاسى"
+  },
+  "event": {
+    "description": "چۈشەندۈرۈش",
+    "duration": "داۋاملىشىش ۋاقتى",
+    "ageRestriction": "ياش چەكلىمىسى",
+    "schedule": "جەدۋەل",
+    "selectSeats": "ئورۇن تاللاش",
+    "prices": "باھالار",
+    "gallery": "سۈرەت گالىرېيىسى",
+    "genre": {
+      "comedy": "كومىدىيە",
+      "drama": "دراما",
+      "musical": "مۇزىكىلىق",
+      "concert": "كونسېرت",
+      "children": "بالىلار",
+      "folklore": "خەلق ئەنئەنىسى",
+      "other": "باشقا"
+    }
+  },
+  "seats": {
+    "selectYourSeats": "ئورنىڭىزنى تاللاڭ",
+    "row": "قۇر",
+    "seat": "ئورۇن",
+    "price": "باھا",
+    "selected": "تاللانغان",
+    "occupied": "ئىگىلىنگەن",
+    "available": "بوش",
+    "reserved": "ساقلاپ قويۇلغان",
+    "legend": "بەلگە چۈشەندۈرۈشى",
+    "total": "جەمئى",
+    "proceedToCheckout": "تۆلەشكە داۋاملاش",
+    "timerWarning": "ئورۇنلىرىڭىز {minutes} مىنۇتتىن كېيىن بوشىتىلىدۇ",
+    "minutes": "مىنۇت"
+  },
+  "checkout": {
+    "title": "تۆلەش",
+    "customerInfo": "مۇشتەرى ئۇچۇرى",
+    "fullName": "تولۇق ئىسىم",
+    "phone": "تېلېفون نومۇرى",
+    "email": "ئېلخەت",
+    "paymentMethod": "تۆلەش ئۇسۇلى",
+    "kaspiPay": "Kaspi Pay",
+    "bankCard": "بانكا كارتى",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "cash": "نەق پۇل",
+    "reserve": "ساقلاپ قويۇش",
+    "pay": "تۆلەش",
+    "agree": "مەن رازى",
+    "terms": "ئىشلىتىش شەرتلىرى"
+  },
+  "tickets": {
+    "myTickets": "مېنىڭ بىلەتلىرىم",
+    "upcoming": "كېلىدىغان",
+    "past": "ئۆتكەن",
+    "download": "چۈشۈرۈش",
+    "resend": "قايتا ئەۋەتىش",
+    "requestRefund": "قايتۇرۇش تەلەپ قىلىش",
+    "orderNumber": "زاكاز نومۇرى",
+    "status": {
+      "active": "ئاكتىپ",
+      "used": "ئىشلىتىلگەن",
+      "cancelled": "بىكار قىلىنغان",
+      "pending": "كۈتۈلمەكتە",
+      "refunded": "قايتۇرۇلغان"
+    }
+  },
+  "refund": {
+    "requestRefund": "قايتۇرۇش تەلەپ قىلىش",
+    "reason": "سەۋەب",
+    "submit": "يوللاش",
+    "rules": "قايتۇرۇش قائىدىلىرى",
+    "policyDescription": "تاماشا باشلىنىشىدىن 24 سائەت ئىلگىرى بىلەتلەرنى قايتۇرۇشقا بولىدۇ. قايتۇرۇش مىقدارى 3-5 خىزمەت كۈنى ئىچىدە ھېساباتىڭىزغا قايتۇرۇلىدۇ.",
+    "policyNote": "تاماشا باشلانغاندىن كېيىن بىلەتلەرنى قايتۇرۇشقا بولمايدۇ."
+  },
+  "auth": {
+    "login": "كىرىش",
+    "register": "تىزىملىتىش",
+    "phone": "تېلېفون نومۇرى",
+    "password": "پارول",
+    "confirmPassword": "پارولنى جەزملەشتۈرۈش",
+    "forgotPassword": "پارولنى ئۇنتۇپ قالدىم",
+    "smsCode": "SMS كودى",
+    "fullName": "تولۇق ئىسمى",
+    "noAccount": "ھېساباتىڭىز يوقمۇ؟",
+    "hasAccount": "ھېساباتىڭىز بارمۇ؟",
+    "invalidCredentials": "تېلېفون ياكى پارول خاتا",
+    "loginError": "كىرىش خاتالىقى",
+    "registerError": "تىزىملىتىش خاتالىقى",
+    "passwordMismatch": "پاروللار ماس كەلمىدى"
+  },
+  "common": {
+    "loading": "يۈكلىنىۋاتىدۇ...",
+    "error": "خاتالىق",
+    "success": "مۇۋەپپەقىيەت",
+    "cancel": "بىكار قىلىش",
+    "save": "ساقلاش",
+    "delete": "ئۆچۈرۈش",
+    "back": "قايتىش",
+    "next": "كېيىنكى",
+    "search": "ئىزدەش",
+    "noResults": "نەتىجە تېپىلمىدى",
+    "currency": "₸"
+  },
+  "footer": {
+    "address": "ئالماتا، ناۋرىزباي باتۇر كوچىسى، 83",
+    "phone": "تېلېفون",
+    "email": "ئېلخەت",
+    "socialMedia": "ئىجتىمائىي تور",
+    "rights": "© {year} ئۇيغۇر تىياتىرى. بارلىق ھوقۇقلار ساقلىنىدۇ."
+  }
+}

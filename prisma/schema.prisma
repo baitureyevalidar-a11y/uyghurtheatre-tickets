@@ -1,0 +1,284 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============= ENUMS =============
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+  CASHIER
+}
+
+enum Genre {
+  COMEDY
+  DRAMA
+  MUSICAL
+  CONCERT
+  CHILDREN
+  FOLKLORE
+  OTHER
+}
+
+enum ShowStatus {
+  SCHEDULED
+  ON_SALE
+  SOLD_OUT
+  CANCELLED
+  COMPLETED
+}
+
+enum SeatType {
+  REGULAR
+  VIP
+  WHEELCHAIR
+  RESTRICTED_VIEW
+}
+
+enum TicketStatus {
+  RESERVED
+  PAID
+  USED
+  REFUNDED
+  CANCELLED
+  EXPIRED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PARTIALLY_REFUNDED
+  REFUNDED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentMethod {
+  KASPI
+  CARD
+  APPLE_PAY
+  GOOGLE_PAY
+  CASH
+}
+
+enum RefundStatus {
+  REQUESTED
+  APPROVED
+  PROCESSED
+  REJECTED
+}
+
+enum RefundMethod {
+  ORIGINAL_PAYMENT
+  CASH
+}
+
+// ============= MODELS =============
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  phone        String   @unique
+  email        String?  @unique
+  fullName     String
+  passwordHash String
+  role         UserRole @default(USER)
+  isBlocked    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders           Order[]
+  refundsProcessed Refund[]   @relation("RefundProcessor")
+  auditLogs        AuditLog[]
+
+  @@map("users")
+}
+
+model Event {
+  id             String   @id @default(uuid()) @db.Uuid
+  titleKz        String
+  titleRu        String
+  titleUy        String
+  descriptionKz  String   @db.Text
+  descriptionRu  String   @db.Text
+  descriptionUy  String   @db.Text
+  posterImage    String
+  galleryImages  String[]
+  genre          Genre
+  duration       Int
+  ageRestriction String
+  isActive       Boolean  @default(true)
+  isDeleted      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  shows Show[]
+
+  @@map("events")
+}
+
+model Show {
+  id                String     @id @default(uuid()) @db.Uuid
+  eventId           String     @db.Uuid
+  hallId            String     @db.Uuid
+  dateTime          DateTime
+  ticketSalesStart  DateTime
+  ticketSalesEnd    DateTime
+  status            ShowStatus @default(SCHEDULED)
+  specialConditions String?    @db.Text
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  event      Event       @relation(fields: [eventId], references: [id])
+  hall       Hall        @relation(fields: [hallId], references: [id])
+  priceTiers PriceTier[]
+  tickets    Ticket[]
+
+  @@map("shows")
+}
+
+model Hall {
+  id         String  @id @default(uuid()) @db.Uuid
+  name       String
+  totalSeats Int
+  seatMapSVG String  @db.Text
+  isActive   Boolean @default(true)
+
+  sectors Sector[]
+  shows   Show[]
+
+  @@map("halls")
+}
+
+model Sector {
+  id     String @id @default(uuid()) @db.Uuid
+  hallId String @db.Uuid
+  name   String
+  color  String
+
+  hall       Hall        @relation(fields: [hallId], references: [id])
+  seats      Seat[]
+  priceTiers PriceTier[]
+
+  @@map("sectors")
+}
+
+model Seat {
+  id         String   @id @default(uuid()) @db.Uuid
+  sectorId   String   @db.Uuid
+  row        Int
+  seatNumber Int
+  x          Float
+  y          Float
+  seatType   SeatType @default(REGULAR)
+
+  sector  Sector   @relation(fields: [sectorId], references: [id])
+  tickets Ticket[]
+
+  @@map("seats")
+}
+
+model PriceTier {
+  id       String   @id @default(uuid()) @db.Uuid
+  showId   String   @db.Uuid
+  sectorId String   @db.Uuid
+  seatType SeatType
+  price    Decimal  @db.Decimal(10, 2)
+  currency String   @default("KZT")
+
+  show   Show   @relation(fields: [showId], references: [id])
+  sector Sector @relation(fields: [sectorId], references: [id])
+
+  @@map("price_tiers")
+}
+
+model Ticket {
+  id            String       @id @default(uuid()) @db.Uuid
+  showId        String       @db.Uuid
+  seatId        String       @db.Uuid
+  orderId       String       @db.Uuid
+  qrCode        String       @unique
+  status        TicketStatus @default(RESERVED)
+  reservedUntil DateTime?
+  usedAt        DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  show    Show     @relation(fields: [showId], references: [id])
+  seat    Seat     @relation(fields: [seatId], references: [id])
+  order   Order    @relation(fields: [orderId], references: [id])
+  refunds Refund[]
+
+  @@unique([showId, seatId])
+  @@map("tickets")
+}
+
+model Order {
+  id            String         @id @default(uuid()) @db.Uuid
+  userId        String?        @db.Uuid
+  orderNumber   String         @unique
+  totalAmount   Decimal        @db.Decimal(10, 2)
+  currency      String         @default("KZT")
+  status        OrderStatus    @default(PENDING)
+  paymentMethod PaymentMethod?
+  paymentId     String?
+  paidAt        DateTime?
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  user    User?    @relation(fields: [userId], references: [id])
+  tickets Ticket[]
+  refunds Refund[]
+
+  @@map("orders")
+}
+
+model Refund {
+  id           String        @id @default(uuid()) @db.Uuid
+  orderId      String        @db.Uuid
+  ticketId     String        @db.Uuid
+  amount       Decimal       @db.Decimal(10, 2)
+  reason       String        @db.Text
+  status       RefundStatus  @default(REQUESTED)
+  processedBy  String?       @db.Uuid
+  processedAt  DateTime?
+  refundMethod RefundMethod?
+  createdAt    DateTime      @default(now())
+
+  order     Order  @relation(fields: [orderId], references: [id])
+  ticket    Ticket @relation(fields: [ticketId], references: [id])
+  processor User?  @relation("RefundProcessor", fields: [processedBy], references: [id])
+
+  @@map("refunds")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @db.Uuid
+  action     String
+  entityType String
+  entityId   String
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model SystemSettings {
+  id    String @id @default(uuid()) @db.Uuid
+  key   String @unique
+  value String @db.Text
+
+  @@map("system_settings")
+}
