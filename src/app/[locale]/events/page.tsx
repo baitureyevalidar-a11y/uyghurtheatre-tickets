@@ -8,100 +8,71 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { formatDate, formatPrice, cn } from '@/lib/utils'
 import { routing } from '@/i18n/routing'
-import { CalendarDays, Clock, Users, Sparkles, ArrowRight, Calendar } from 'lucide-react'
+import { CalendarDays, Clock, Sparkles, ArrowRight, Calendar, SlidersHorizontal } from 'lucide-react'
 
-// ---------------------------------------------------------------------------
-// Types / helpers
-// ---------------------------------------------------------------------------
-
-type Genre =
-  | 'COMEDY'
-  | 'DRAMA'
-  | 'MUSICAL'
-  | 'CONCERT'
-  | 'CHILDREN'
-  | 'FOLKLORE'
-  | 'OTHER'
+type Genre = 'COMEDY' | 'DRAMA' | 'MUSICAL' | 'CONCERT' | 'CHILDREN' | 'FOLKLORE' | 'OTHER'
 
 const GENRE_KEYS: Record<Genre, string> = {
-  COMEDY: 'comedy',
-  DRAMA: 'drama',
-  MUSICAL: 'musical',
-  CONCERT: 'concert',
-  CHILDREN: 'children',
-  FOLKLORE: 'folklore',
-  OTHER: 'other',
+  COMEDY: 'comedy', DRAMA: 'drama', MUSICAL: 'musical', CONCERT: 'concert',
+  CHILDREN: 'children', FOLKLORE: 'folklore', OTHER: 'other',
 }
 
-const ALL_GENRES: Genre[] = [
-  'COMEDY',
-  'DRAMA',
-  'MUSICAL',
-  'CONCERT',
-  'CHILDREN',
-  'FOLKLORE',
-  'OTHER',
-]
+const ALL_GENRES: Genre[] = ['COMEDY', 'DRAMA', 'MUSICAL', 'CONCERT', 'CHILDREN', 'FOLKLORE', 'OTHER']
 
-// ---------------------------------------------------------------------------
-// Metadata
-// ---------------------------------------------------------------------------
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'nav' })
   return {
     title: t('events'),
-    description:
-      locale === 'ru'
-        ? 'Все спектакли и концерты Уйгурского театра — Алматы'
-        : locale === 'kz'
-        ? 'Ұйғыр театрының барлық қойылымдары мен концерттері — Алматы'
-        : 'ئۇيغۇر تىياتىرىنىڭ بارلىق تاماشىلىرى — ئالماتا',
+    description: locale === 'ru'
+      ? 'Афиша спектаклей и концертов Уйгурского театра имени Кужамьярова — купить билеты онлайн, Алматы'
+      : 'Күжамиаров атындағы Ұйғыр театрының қойылымдары мен концерттері — билеттерді онлайн сатып алыңыз, Алматы',
+    openGraph: {
+      title: locale === 'ru' ? 'Афиша | Ұйғыр театры' : 'Афиша | Ұйғыр театры',
+    },
   }
 }
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-
 interface PageProps {
   params: Promise<{ locale: string }>
-  searchParams: Promise<{ genre?: string }>
+  searchParams: Promise<{ genre?: string; sort?: string; date?: string }>
 }
 
 export default async function EventsPage({ params, searchParams }: PageProps) {
   const { locale } = await params
-  const { genre: genreParam } = await searchParams
+  const { genre: genreParam, sort: sortParam, date: dateParam } = await searchParams
 
-  if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
-    notFound()
-  }
+  if (!routing.locales.includes(locale as (typeof routing.locales)[number])) notFound()
 
   const t = await getTranslations({ locale, namespace: 'event' })
   const tHome = await getTranslations({ locale, namespace: 'home' })
   const tCommon = await getTranslations({ locale, namespace: 'common' })
 
   const now = new Date()
-  const genreFilter = ALL_GENRES.includes(genreParam as Genre)
-    ? (genreParam as Genre)
-    : undefined
+  const genreFilter = ALL_GENRES.includes(genreParam as Genre) ? (genreParam as Genre) : undefined
+
+  // Date filter
+  let dateGte = now;
+  let dateLte: Date | undefined;
+  if (dateParam === 'today') {
+    dateGte = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    dateLte = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  } else if (dateParam === 'week') {
+    dateLte = new Date(now.getTime() + 7 * 86400000);
+  } else if (dateParam === 'month') {
+    dateLte = new Date(now.getTime() + 30 * 86400000);
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let events: any[] = []
   try {
     events = await prisma.event.findMany({
       where: {
-        isActive: true,
-        isDeleted: false,
+        isActive: true, isDeleted: false,
         ...(genreFilter ? { genre: genreFilter } : {}),
         shows: {
           some: {
-            dateTime: { gte: now },
+            dateTime: { gte: dateGte, ...(dateLte ? { lte: dateLte } : {}) },
             status: { notIn: ['CANCELLED', 'COMPLETED'] },
           },
         },
@@ -114,19 +85,26 @@ export default async function EventsPage({ params, searchParams }: PageProps) {
           },
           orderBy: { dateTime: 'asc' },
           take: 1,
-          include: {
-            priceTiers: {
-              select: { price: true },
-              orderBy: { price: 'asc' },
-              take: 1,
-            },
-          },
+          include: { priceTiers: { select: { price: true }, orderBy: { price: 'asc' }, take: 1 } },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: sortParam === 'price' ? { createdAt: 'desc' } : { createdAt: 'desc' },
     })
-  } catch {
-    // DB not ready yet
+  } catch { /* DB not ready */ }
+
+  // Sort
+  if (sortParam === 'date') {
+    events.sort((a: { shows: { dateTime: Date }[] }, b: { shows: { dateTime: Date }[] }) => {
+      const aDate = a.shows[0]?.dateTime ? new Date(a.shows[0].dateTime).getTime() : Infinity;
+      const bDate = b.shows[0]?.dateTime ? new Date(b.shows[0].dateTime).getTime() : Infinity;
+      return aDate - bDate;
+    });
+  } else if (sortParam === 'price') {
+    events.sort((a: { shows: { priceTiers: { price: number }[] }[] }, b: { shows: { priceTiers: { price: number }[] }[] }) => {
+      const aPrice = a.shows[0]?.priceTiers[0]?.price ? Number(a.shows[0].priceTiers[0].price) : Infinity;
+      const bPrice = b.shows[0]?.priceTiers[0]?.price ? Number(b.shows[0].priceTiers[0].price) : Infinity;
+      return aPrice - bPrice;
+    });
   }
 
   type EventItem = (typeof events)[number]
@@ -137,19 +115,42 @@ export default async function EventsPage({ params, searchParams }: PageProps) {
     return event.titleUy
   }
 
-  const pageTitle =
-    locale === 'ru' ? 'Афиша' : locale === 'kz' ? 'Афиша' : 'تەدبىرلەر'
+  const pageTitle = locale === 'ru' ? 'Афиша' : locale === 'kz' ? 'Афиша' : 'تەدبىرلەر'
+
+  // Build filter URL helper
+  function filterUrl(overrides: Record<string, string | undefined>) {
+    const p = new URLSearchParams();
+    const genre = overrides.genre !== undefined ? overrides.genre : genreParam;
+    const sort = overrides.sort !== undefined ? overrides.sort : sortParam;
+    const date = overrides.date !== undefined ? overrides.date : dateParam;
+    if (genre) p.set('genre', genre);
+    if (sort) p.set('sort', sort);
+    if (date) p.set('date', date);
+    const qs = p.toString();
+    return `/${locale}/events${qs ? `?${qs}` : ''}`;
+  }
+
+  const dateOptions = [
+    { value: undefined, label: locale === 'ru' ? 'Все даты' : 'Барлық күндер' },
+    { value: 'today', label: locale === 'ru' ? 'Сегодня' : 'Бүгін' },
+    { value: 'week', label: locale === 'ru' ? 'На этой неделе' : 'Осы аптада' },
+    { value: 'month', label: locale === 'ru' ? 'В этом месяце' : 'Осы айда' },
+  ];
+
+  const sortOptions = [
+    { value: undefined, label: locale === 'ru' ? 'По умолчанию' : 'Әдепкі' },
+    { value: 'date', label: locale === 'ru' ? 'По дате' : 'Күні бойынша' },
+    { value: 'price', label: locale === 'ru' ? 'По цене' : 'Бағасы бойынша' },
+  ];
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* ─── Page header with theatrical style ─── */}
+      {/* Header */}
       <div className="relative overflow-hidden bg-darkBrown">
         <div className="absolute inset-0 uyghur-pattern opacity-50" />
         <div className="absolute inset-0 bg-gradient-to-b from-darkBrown/80 to-darkBrown" />
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0">
-          <div className="ornament-border" />
-        </div>
+        <div className="absolute bottom-0 left-0 right-0"><div className="ornament-border" /></div>
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-5 py-2 text-gold mb-6 backdrop-blur-sm">
@@ -168,51 +169,107 @@ export default async function EventsPage({ params, searchParams }: PageProps) {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        {/* Genre filter pills */}
-        <div className="mb-10 flex flex-wrap items-center justify-center gap-2">
-          <Link
-            href={`/${locale}/events`}
-            className={cn(
-              'rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 border',
-              !genreFilter
-                ? 'bg-gradient-to-r from-gold to-gold-light text-darkBrown border-gold shadow-gold'
-                : 'bg-white text-brown border-brown/15 hover:border-gold/40 hover:text-burgundy',
-            )}
-          >
-            {locale === 'ru' ? 'Все' : 'Барлығы'}
-          </Link>
-          {ALL_GENRES.map((g) => (
+        {/* Filters */}
+        <div className="space-y-4 mb-10">
+          {/* Genre pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <Link
-              key={g}
-              href={`/${locale}/events?genre=${g}`}
+              href={filterUrl({ genre: undefined })}
               className={cn(
                 'rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 border',
-                genreFilter === g
+                !genreFilter
                   ? 'bg-gradient-to-r from-gold to-gold-light text-darkBrown border-gold shadow-gold'
                   : 'bg-white text-brown border-brown/15 hover:border-gold/40 hover:text-burgundy',
               )}
             >
-              {t(`genre.${GENRE_KEYS[g]}`)}
+              {locale === 'ru' ? 'Все' : 'Барлығы'}
             </Link>
-          ))}
+            {ALL_GENRES.map((g) => (
+              <Link
+                key={g}
+                href={filterUrl({ genre: g })}
+                className={cn(
+                  'rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 border',
+                  genreFilter === g
+                    ? 'bg-gradient-to-r from-gold to-gold-light text-darkBrown border-gold shadow-gold'
+                    : 'bg-white text-brown border-brown/15 hover:border-gold/40 hover:text-burgundy',
+                )}
+              >
+                {t(`genre.${GENRE_KEYS[g]}`)}
+              </Link>
+            ))}
+          </div>
+
+          {/* Date & sort */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="flex items-center gap-1.5 text-brown/50 text-xs">
+              <CalendarDays className="w-3.5 h-3.5" />
+              <span>{locale === 'ru' ? 'Дата:' : 'Күні:'}</span>
+            </div>
+            {dateOptions.map((opt) => (
+              <Link
+                key={opt.value ?? 'all'}
+                href={filterUrl({ date: opt.value })}
+                className={cn(
+                  'rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-300 border',
+                  (dateParam ?? undefined) === opt.value
+                    ? 'bg-burgundy text-cream border-burgundy'
+                    : 'bg-white text-brown/60 border-brown/10 hover:border-burgundy/40 hover:text-burgundy',
+                )}
+              >
+                {opt.label}
+              </Link>
+            ))}
+
+            <span className="w-px h-4 bg-brown/20 mx-1 hidden sm:block" />
+
+            <div className="flex items-center gap-1.5 text-brown/50 text-xs">
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>{locale === 'ru' ? 'Сортировка:' : 'Сұрыптау:'}</span>
+            </div>
+            {sortOptions.map((opt) => (
+              <Link
+                key={opt.value ?? 'default'}
+                href={filterUrl({ sort: opt.value })}
+                className={cn(
+                  'rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-300 border',
+                  (sortParam ?? undefined) === opt.value
+                    ? 'bg-burgundy text-cream border-burgundy'
+                    : 'bg-white text-brown/60 border-brown/10 hover:border-burgundy/40 hover:text-burgundy',
+                )}
+              >
+                {opt.label}
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Events grid */}
         {events.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-gold/20 bg-darkBrown/5 py-24 text-center">
-            <Calendar className="mb-4 h-12 w-12 text-gold/30" />
-            <p className="font-heading text-xl font-semibold text-brown/50">{tCommon('noResults')}</p>
-            <p className="mt-2 text-sm text-brown/30">
-              {locale === 'ru' ? 'Нет мероприятий в этой категории' : 'Бұл санатта тәдбірлер жоқ'}
+          <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gold/20 bg-darkBrown/5 py-24 text-center">
+            <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center mb-6">
+              <Calendar className="h-10 w-10 text-gold/40" />
+            </div>
+            <p className="font-heading text-2xl font-bold text-brown/50 mb-2">
+              {locale === 'ru' ? 'Ничего не найдено' : 'Ештеңе табылмады'}
             </p>
+            <p className="text-sm text-brown/30 max-w-sm">
+              {locale === 'ru'
+                ? 'Попробуйте изменить фильтры или посмотреть все мероприятия'
+                : 'Сүзгілерді өзгертіп көріңіз немесе барлық тәдбірлерді қараңыз'}
+            </p>
+            <Link
+              href={`/${locale}/events`}
+              className="mt-6 inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-gold to-gold-light text-darkBrown font-bold rounded-full text-sm hover:scale-105 transition-transform"
+            >
+              {locale === 'ru' ? 'Сбросить фильтры' : 'Сүзгілерді қалпына келтіру'}
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((event: EventItem) => {
               const firstShow = event.shows[0] ?? null
-              const minPrice = firstShow?.priceTiers[0]?.price
-                ? Number(firstShow.priceTiers[0].price)
-                : null
+              const minPrice = firstShow?.priceTiers[0]?.price ? Number(firstShow.priceTiers[0].price) : null
 
               return (
                 <Link
@@ -220,7 +277,6 @@ export default async function EventsPage({ params, searchParams }: PageProps) {
                   href={`/${locale}/events/${event.id}`}
                   className="card-theatrical group block h-80 sm:h-96"
                 >
-                  {/* Poster / gradient placeholder */}
                   {event.posterImage ? (
                     <Image
                       src={event.posterImage}
@@ -240,7 +296,6 @@ export default async function EventsPage({ params, searchParams }: PageProps) {
                     </div>
                   )}
 
-                  {/* Genre badge */}
                   <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
                     <span className="px-3 py-1 bg-gold/90 text-darkBrown text-xs font-bold rounded-full uppercase tracking-wide backdrop-blur-sm">
                       {t(`genre.${GENRE_KEYS[event.genre as Genre]}`)}
@@ -250,12 +305,10 @@ export default async function EventsPage({ params, searchParams }: PageProps) {
                     </span>
                   </div>
 
-                  {/* Content overlay */}
                   <div className="absolute inset-x-0 bottom-0 z-10 p-5">
                     <h3 className="font-heading font-bold text-xl text-cream leading-tight mb-2 drop-shadow-lg line-clamp-2">
                       {getTitle(event)}
                     </h3>
-
                     <div className="flex items-center gap-4 text-cream/70 text-sm mb-3">
                       {firstShow && (
                         <span className="flex items-center gap-1.5">
@@ -268,7 +321,6 @@ export default async function EventsPage({ params, searchParams }: PageProps) {
                         {event.duration} мин.
                       </span>
                     </div>
-
                     <div className="flex items-center justify-between">
                       {minPrice !== null && (
                         <span className="text-gold font-heading font-bold text-lg">

@@ -2,9 +2,11 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
-import { ArrowRight, Calendar, Sparkles } from 'lucide-react';
+import { ArrowRight, Calendar, Sparkles, MousePointer, CreditCard, Armchair } from 'lucide-react';
 import { prisma } from '@/lib/db';
 import EventCard from '@/components/events/EventCard';
+import StatsCounters from '@/components/ui/stats-counters';
+import ReviewsCarousel from '@/components/ui/reviews-carousel';
 
 async function getUpcomingShows() {
   try {
@@ -33,34 +35,43 @@ export default async function HomePage() {
   const shows = await getUpcomingShows();
   const nextShowDate = shows[0]?.dateTime ? new Date(shows[0].dateTime).toISOString() : null;
 
+  const statsData = [
+    { target: 92, suffix: '-й', label: locale === 'ru' ? 'Сезон' : 'Маусым', sublabel: locale === 'ru' ? 'с 1934 года' : '1934 жылдан' },
+    { target: 300, suffix: '+', label: locale === 'ru' ? 'Спектаклей' : 'Қойылымдар', sublabel: locale === 'ru' ? 'в репертуаре' : 'репертуарда' },
+    { target: 50000, suffix: '+', label: locale === 'ru' ? 'Зрителей в год' : 'Жылына көрермен', sublabel: locale === 'ru' ? 'и продолжает расти' : 'және өсуде' },
+  ];
+
+  const howToBuySteps = locale === 'ru'
+    ? [
+        { icon: MousePointer, title: 'Выберите спектакль', desc: 'Откройте афишу и выберите интересующее вас мероприятие' },
+        { icon: Armchair, title: 'Выберите места', desc: 'Интерактивная карта зала поможет выбрать лучшие места' },
+        { icon: CreditCard, title: 'Оплатите онлайн', desc: 'Безопасная оплата картой — билет придёт на вашу почту' },
+      ]
+    : [
+        { icon: MousePointer, title: 'Қойылымды таңдаңыз', desc: 'Афишаны ашып, қызықтырған тәдбірді таңдаңыз' },
+        { icon: Armchair, title: 'Орындарды таңдаңыз', desc: 'Залдың интерактивті картасы ең жақсы орындарды таңдауға көмектеседі' },
+        { icon: CreditCard, title: 'Онлайн төлеңіз', desc: 'Картамен қауіпсіз төлем — билет поштаңызға келеді' },
+      ];
+
   return (
     <div className="min-h-screen bg-cream">
       {/* ── Hero Section ── */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-darkBrown">
-        {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-darkBrown via-burgundy/40 to-darkBrown" />
-        {/* Uyghur pattern */}
         <div className="absolute inset-0 uyghur-pattern" />
-        {/* Radial glow */}
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(139,26,26,0.3) 0%, transparent 60%)' }} />
-
-        {/* Curtain decorations */}
         <div className="absolute left-0 top-0 h-full w-20 bg-gradient-to-r from-burgundy/30 to-transparent hidden lg:block" />
         <div className="absolute right-0 top-0 h-full w-20 bg-gradient-to-l from-burgundy/30 to-transparent hidden lg:block" />
-
-        {/* Decorative gold lines */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
 
         <div className="relative mx-auto max-w-7xl px-4 py-32 sm:px-6 lg:px-8 w-full">
           <div className="max-w-3xl">
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-5 py-2 text-gold mb-8 backdrop-blur-sm">
               <Sparkles className="h-4 w-4" />
               <span className="text-xs font-bold uppercase tracking-[0.2em]">Алматы</span>
             </div>
 
-            {/* Title */}
             <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6">
               <span className="text-shimmer">{t('heroTitle')}</span>
             </h1>
@@ -69,7 +80,6 @@ export default async function HomePage() {
               {t('heroSubtitle')}
             </p>
 
-            {/* CTA buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href={`/${locale}/events`}
@@ -87,7 +97,6 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Decorative curtain lines right */}
           <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-3 opacity-20">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="w-1 rounded-full bg-gold" style={{ height: `${120 - i * 15}px` }} />
@@ -95,7 +104,6 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* Bottom ornament */}
         <div className="absolute bottom-0 left-0 right-0">
           <div className="ornament-border" />
         </div>
@@ -148,38 +156,125 @@ export default async function HomePage() {
           <div className="flex flex-col items-center justify-center rounded-2xl border border-gold/20 bg-darkBrown/5 py-24 text-center">
             <Calendar className="mb-4 h-12 w-12 text-gold/30" />
             <p className="font-heading text-xl font-semibold text-brown/50">{t('upcomingShows')}</p>
-            <p className="mt-2 text-sm text-brown/30">Нет предстоящих мероприятий</p>
+            <p className="mt-2 text-sm text-brown/30">
+              {locale === 'ru' ? 'Нет предстоящих мероприятий' : 'Алдағы тәдбірлер жоқ'}
+            </p>
           </div>
         )}
       </section>
 
-      {/* ── Stats ── */}
+      {/* ── Наш театр в цифрах ── */}
       <section className="bg-darkBrown">
         <div className="ornament-border" />
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-            {[
-              { value: '1934', label: locale === 'ru' ? 'Год основания' : 'Құрылған жыл', sub: locale === 'ru' ? 'история театра' : 'театр тарихы' },
-              { value: '600+', label: locale === 'ru' ? 'Зрительных мест' : 'Көрермен орны', sub: locale === 'ru' ? 'в большом зале' : 'үлкен залда' },
-              { value: '90+', label: locale === 'ru' ? 'Лет на сцене' : 'Сахнада жыл', sub: locale === 'ru' ? 'традиции и новаторство' : 'дәстүр мен жаңашылдық' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center p-8 rounded-2xl border border-gold/10 bg-white/5">
-                <p className="font-heading text-5xl font-bold text-gold mb-2">{stat.value}</p>
-                <p className="text-sm font-semibold text-cream/80">{stat.label}</p>
-                <p className="text-xs text-cream/40 mt-1">{stat.sub}</p>
-              </div>
-            ))}
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <h2 className="font-heading text-4xl sm:text-5xl font-bold mb-4">
+              <span className="text-shimmer">
+                {locale === 'ru' ? 'Наш театр в цифрах' : 'Біздің театр сандарда'}
+              </span>
+            </h2>
+            <div className="mx-auto h-1 w-16 rounded-full bg-gradient-to-r from-burgundy to-gold" />
           </div>
+          <StatsCounters stats={statsData} locale={locale} />
+        </div>
+      </section>
+
+      {/* ── Как купить билет ── */}
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <h2 className="font-heading text-4xl sm:text-5xl font-bold text-darkBrown mb-4">
+            {locale === 'ru' ? 'Как купить билет' : 'Билетті қалай сатып алуға болады'}
+          </h2>
+          <div className="mx-auto h-1 w-16 rounded-full bg-gradient-to-r from-burgundy to-gold" />
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+          {howToBuySteps.map((step, i) => {
+            const Icon = step.icon;
+            return (
+              <div key={i} className="text-center group">
+                {/* Step number + icon */}
+                <div className="relative inline-flex mb-6">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gold/10 to-burgundy/10 border border-gold/20 flex items-center justify-center group-hover:scale-110 group-hover:border-gold/40 transition-all duration-300">
+                    <Icon className="w-8 h-8 text-gold" />
+                  </div>
+                  <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-burgundy text-cream text-xs font-bold flex items-center justify-center">
+                    {i + 1}
+                  </span>
+                </div>
+
+                <h3 className="font-heading text-lg font-bold text-darkBrown mb-2">{step.title}</h3>
+                <p className="text-brown/60 text-sm leading-relaxed max-w-xs mx-auto">{step.desc}</p>
+
+                {/* Connector line */}
+                {i < howToBuySteps.length - 1 && (
+                  <div className="hidden sm:block absolute" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-12 flex justify-center">
+          <Link
+            href={`/${locale}/events`}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-gold to-gold-light text-darkBrown font-bold rounded-full shadow-gold hover:shadow-gold-lg hover:scale-105 transition-all duration-300 text-sm uppercase tracking-wider"
+          >
+            {locale === 'ru' ? 'Перейти к афише' : 'Афишаға өту'}
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Видео ── */}
+      <section className="bg-darkBrown/95">
+        <div className="ornament-border" />
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <h2 className="font-heading text-4xl sm:text-5xl font-bold mb-4">
+              <span className="text-shimmer">
+                {locale === 'ru' ? 'Наш театр' : 'Біздің театр'}
+              </span>
+            </h2>
+            <p className="text-cream/50 text-sm">
+              {locale === 'ru' ? 'Познакомьтесь с нашим театром поближе' : 'Театрмен жақынырақ танысыңыз'}
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="relative aspect-video rounded-2xl overflow-hidden border border-gold/20 shadow-gold-lg">
+              <iframe
+                src="https://www.youtube.com/embed/OcyBGmloS9U"
+                title="Uyghur Theatre Almaty"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Отзывы ── */}
+      <section className="bg-darkBrown border-t border-gold/10">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <h2 className="font-heading text-4xl sm:text-5xl font-bold mb-4">
+              <span className="text-shimmer">
+                {locale === 'ru' ? 'Отзывы зрителей' : 'Көрермендер пікірлері'}
+              </span>
+            </h2>
+            <div className="mx-auto h-1 w-16 rounded-full bg-gradient-to-r from-burgundy to-gold" />
+          </div>
+          <ReviewsCarousel />
         </div>
       </section>
     </div>
   );
 }
 
-/* Client component for countdown */
+/* Countdown helpers (server components) */
 function CountdownClient({ targetDate, locale }: { targetDate: string; locale: string }) {
-  // This is a server component file, so we render a client wrapper
-  // The countdown is rendered client-side via a script
   return (
     <div className="text-center">
       <p className="text-gold/60 text-xs font-bold uppercase tracking-[0.2em] mb-6">
@@ -193,7 +288,6 @@ function CountdownClient({ targetDate, locale }: { targetDate: string; locale: s
 }
 
 function CountdownTimer({ targetDate }: { targetDate: string }) {
-  // Static render - client-side JS will hydrate
   const diff = new Date(targetDate).getTime() - Date.now();
   const days = Math.max(0, Math.floor(diff / 86400000));
   const hours = Math.max(0, Math.floor((diff % 86400000) / 3600000));

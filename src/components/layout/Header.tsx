@@ -29,6 +29,7 @@ export default function Header() {
   const navLinks = [
     { href: `/${locale}`, label: t('home') },
     { href: `/${locale}/events`, label: t('events') },
+    { href: `/${locale}/gallery`, label: locale === 'ru' ? 'Галерея' : 'Галерея' },
     { href: `/${locale}/about`, label: t('about') },
   ];
 

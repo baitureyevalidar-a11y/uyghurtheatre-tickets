@@ -13,12 +13,29 @@ import Providers from './providers';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Ұйғыр театры — Алматы',
+    default: 'Ұйғыр театры — Билеты онлайн | Алматы',
     template: '%s | Ұйғыр театры',
   },
   description:
-    'Қ. Күжамиаров атындағы Мемлекеттік Ұйғыр музыкалық комедия театры — билеттерді онлайн сатып алыңыз.',
+    'Уйгурский театр музыкальной комедии им. Кужамьярова — купить билеты онлайн. Спектакли, концерты, фольклорные представления в Алматы. Единственный в мире профессиональный уйгурский театр.',
   metadataBase: new URL('https://uyghurtheatre.kz'),
+  keywords: ['уйгурский театр', 'билеты', 'алматы', 'спектакли', 'кужамьяров', 'uyghur theatre', 'театр алматы'],
+  openGraph: {
+    type: 'website',
+    siteName: 'Ұйғыр театры',
+    title: 'Ұйғыр театры — Билеты онлайн | Алматы',
+    description: 'Уйгурский театр им. Кужамьярова — купить билеты онлайн. Спектакли и концерты в Алматы.',
+    locale: 'ru_KZ',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Ұйғыр театры — Билеты онлайн',
+    description: 'Уйгурский театр — купить билеты на спектакли онлайн. Алматы.',
+  },
+  robots: { index: true, follow: true },
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 interface LocaleLayoutProps {
