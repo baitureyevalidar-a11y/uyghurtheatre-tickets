@@ -1,7 +1,9 @@
 import { PrismaClient, Genre, SeatType, ShowStatus } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
 import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient()
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
+const prisma = new PrismaClient({ adapter })
 
 function generateSeatMapSVG(): string {
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" class="seat-map">`
@@ -252,8 +254,8 @@ async function main() {
   console.log('✅ System settings created')
   console.log('🎉 Seed completed successfully!')
   console.log('')
-  console.log('Admin login: admin@uyghurtheatre.kz / Admin123!')
-  console.log('Cashier login: cashier@uyghurtheatre.kz / Cashier123!')
+  console.log('Admin login: +77001234567 / Admin123!')
+  console.log('Cashier login: +77001234568 / Cashier123!')
 }
 
 main()
