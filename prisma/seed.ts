@@ -28,6 +28,7 @@ async function main() {
   await prisma.hall.deleteMany()
   await prisma.event.deleteMany()
   await prisma.user.deleteMany()
+  await prisma.systemSettings.deleteMany()
 
   // Create users
   const adminPassword = await bcrypt.hash('Admin123!', 12)
