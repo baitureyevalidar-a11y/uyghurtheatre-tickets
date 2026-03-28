@@ -18,6 +18,8 @@ import {
   ArrowLeft,
   Ticket,
   ChevronRight,
+  Sparkles,
+  Star,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -136,7 +138,6 @@ export default async function EventDetailPage({ params }: PageProps) {
 
   if (!event) notFound()
 
-  // Localised fields
   const title =
     locale === 'ru'
       ? event.titleRu
@@ -151,14 +152,11 @@ export default async function EventDetailPage({ params }: PageProps) {
       ? event.descriptionKz
       : event.descriptionUy
 
-  const dateLocale =
-    locale === 'kz' ? 'kk-KZ' : 'ru-KZ'
-
+  const dateLocale = locale === 'kz' ? 'kk-KZ' : 'ru-KZ'
   const genreKey = GENRE_KEYS[event.genre as Genre] ?? 'other'
 
   type ShowItem = (typeof event.shows)[number]
 
-  // Build price table: group by sector → list of seat types + prices
   interface PriceRow {
     sectorId: string
     sectorName: string
@@ -167,7 +165,6 @@ export default async function EventDetailPage({ params }: PageProps) {
     price: number
   }
 
-  // Collect unique price rows from all shows (use the first show's tiers as representative)
   const priceRows: PriceRow[] = []
   const seenKeys = new Set<string>()
   for (const show of event.shows) {
@@ -184,7 +181,7 @@ export default async function EventDetailPage({ params }: PageProps) {
         })
       }
     }
-    if (seenKeys.size > 0) break // one show's tiers is enough
+    if (seenKeys.size > 0) break
   }
 
   const seatTypeLabel: Record<string, string> = {
@@ -194,11 +191,12 @@ export default async function EventDetailPage({ params }: PageProps) {
     RESTRICTED_VIEW: locale === 'ru' ? 'Ограниченный обзор' : locale === 'kz' ? 'Шектеулі көрініс' : 'چەكلەنگەن كۆرۈش',
   }
 
+  const minPrice = priceRows.length > 0 ? Math.min(...priceRows.map(r => r.price)) : null
+
   return (
     <div className="min-h-screen bg-cream">
-      {/* ─── Hero ─── */}
-      <div className="relative h-[420px] w-full overflow-hidden sm:h-[520px]">
-        {/* Background poster */}
+      {/* ─── Hero with parallax poster ─── */}
+      <div className="relative h-[480px] w-full overflow-hidden sm:h-[560px]">
         {event.posterImage ? (
           <>
             <Image
@@ -206,88 +204,106 @@ export default async function EventDetailPage({ params }: PageProps) {
               alt={title}
               fill
               priority
-              className="object-cover"
+              className="object-cover scale-110"
               sizes="100vw"
             />
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-darkBrown via-darkBrown/60 to-darkBrown/10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-darkBrown via-darkBrown/70 to-darkBrown/20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-darkBrown/50 to-transparent" />
           </>
         ) : (
-          <div className="absolute inset-0 bg-darkBrown" />
+          <div className="absolute inset-0 bg-gradient-to-br from-darkBrown via-burgundy/40 to-darkBrown">
+            <div className="absolute inset-0 uyghur-pattern opacity-30" />
+          </div>
         )}
 
-        {/* Content inside hero */}
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0">
+          <div className="ornament-border" />
+        </div>
+
+        {/* Content */}
         <div className="relative z-10 flex h-full flex-col justify-end">
-          <div className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-            {/* Back link */}
+          <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
             <Link
               href={`/${locale}/events`}
-              className="mb-4 inline-flex items-center gap-1.5 text-sm text-cream/70 hover:text-cream transition-colors"
+              className="mb-6 inline-flex items-center gap-1.5 text-sm text-cream/50 hover:text-gold transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
-              {locale === 'ru' ? 'Афиша' : locale === 'kz' ? 'Афиша' : 'تەدبىرلەر'}
+              {locale === 'ru' ? 'Назад к афише' : locale === 'kz' ? 'Афишаға оралу' : 'تەدبىرلەرگە قايتىش'}
             </Link>
 
-            {/* Genre badge */}
-            <div className="mb-3">
-              <Badge variant="gold" size="md">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="px-3 py-1 bg-gold/90 text-darkBrown text-xs font-bold rounded-full uppercase tracking-wide">
                 {t(`genre.${genreKey}`)}
-              </Badge>
+              </span>
+              {event.ageRestriction && (
+                <span className="px-2.5 py-1 bg-white/10 text-cream text-xs font-bold rounded-full backdrop-blur-sm">
+                  {event.ageRestriction}+
+                </span>
+              )}
             </div>
 
-            {/* Title */}
-            <h1 className="font-heading text-3xl font-bold text-cream sm:text-4xl lg:text-5xl max-w-3xl leading-tight">
-              {title}
+            <h1 className="font-heading text-4xl font-bold sm:text-5xl lg:text-6xl max-w-3xl leading-[1.1]">
+              <span className="text-shimmer">{title}</span>
             </h1>
 
-            {/* Meta row */}
-            <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-cream/80">
-              <span className="flex items-center gap-1.5">
+            <div className="mt-5 flex flex-wrap items-center gap-5 text-sm text-cream/70">
+              <span className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-gold" />
                 {event.duration} {locale === 'ru' ? 'мин.' : locale === 'kz' ? 'мин.' : 'مىنۇت'}
               </span>
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-gold" />
                 {event.ageRestriction}+
               </span>
+              {minPrice && (
+                <span className="flex items-center gap-2">
+                  <Ticket className="h-4 w-4 text-gold" />
+                  {locale === 'ru' ? 'от' : 'бастап'} {formatPrice(minPrice)}
+                </span>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* ─── Body ─── */}
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
-          {/* Left: description + gallery */}
+          {/* Left column */}
           <div className="lg:col-span-2 space-y-10">
             {/* Description */}
             <section>
-              <h2 className="mb-4 font-heading text-xl font-semibold text-darkBrown">
-                {t('description')}
-              </h2>
-              <div className="prose prose-sm max-w-none text-brown leading-relaxed whitespace-pre-line">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="h-4 w-4 text-gold" />
+                <h2 className="font-heading text-xl font-bold text-darkBrown">
+                  {t('description')}
+                </h2>
+              </div>
+              <div className="prose prose-sm max-w-none text-brown leading-relaxed whitespace-pre-line bg-white rounded-2xl p-6 border border-brown/10 shadow-sm">
                 {description}
               </div>
             </section>
 
-            {/* Details table */}
+            {/* Details */}
             <section>
               <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div className="rounded-lg border border-brown/10 bg-white p-4">
-                  <dt className="text-xs font-semibold uppercase tracking-wider text-brown/50">
+                <div className="rounded-2xl border border-gold/20 bg-gradient-to-br from-darkBrown to-darkBrown/95 p-5">
+                  <dt className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold/60 mb-2">
                     {t('duration')}
                   </dt>
-                  <dd className="mt-1 flex items-center gap-2 font-semibold text-darkBrown">
-                    <Clock className="h-4 w-4 text-gold" />
+                  <dd className="flex items-center gap-2 font-heading font-bold text-cream text-lg">
+                    <Clock className="h-5 w-5 text-gold" />
                     {event.duration} {locale === 'ru' ? 'минут' : locale === 'kz' ? 'минут' : 'مىنۇت'}
                   </dd>
                 </div>
-                <div className="rounded-lg border border-brown/10 bg-white p-4">
-                  <dt className="text-xs font-semibold uppercase tracking-wider text-brown/50">
+                <div className="rounded-2xl border border-gold/20 bg-gradient-to-br from-darkBrown to-darkBrown/95 p-5">
+                  <dt className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold/60 mb-2">
                     {t('ageRestriction')}
                   </dt>
-                  <dd className="mt-1 flex items-center gap-2 font-semibold text-darkBrown">
-                    <Users className="h-4 w-4 text-gold" />
+                  <dd className="flex items-center gap-2 font-heading font-bold text-cream text-lg">
+                    <Users className="h-5 w-5 text-gold" />
                     {event.ageRestriction}+
                   </dd>
                 </div>
@@ -297,22 +313,26 @@ export default async function EventDetailPage({ params }: PageProps) {
             {/* Gallery */}
             {event.galleryImages && event.galleryImages.length > 0 && (
               <section>
-                <h2 className="mb-4 font-heading text-xl font-semibold text-darkBrown">
-                  {t('gallery')}
-                </h2>
+                <div className="flex items-center gap-2 mb-4">
+                  <Star className="h-4 w-4 text-gold" />
+                  <h2 className="font-heading text-xl font-bold text-darkBrown">
+                    {t('gallery')}
+                  </h2>
+                </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {event.galleryImages.map((img: string, idx: number) => (
                     <div
                       key={idx}
-                      className="relative aspect-square overflow-hidden rounded-lg bg-darkBrown/10"
+                      className="relative aspect-square overflow-hidden rounded-xl bg-darkBrown/10 group cursor-pointer"
                     >
                       <Image
                         src={img}
                         alt={`${title} — ${idx + 1}`}
                         fill
-                        className="object-cover transition-transform duration-300 hover:scale-105"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
                         sizes="(max-width: 640px) 50vw, 33vw"
                       />
+                      <div className="absolute inset-0 bg-darkBrown/0 group-hover:bg-darkBrown/20 transition-colors duration-300" />
                     </div>
                   ))}
                 </div>
@@ -321,12 +341,18 @@ export default async function EventDetailPage({ params }: PageProps) {
 
             {/* Schedule */}
             <section>
-              <h2 className="mb-4 font-heading text-xl font-semibold text-darkBrown">
-                {t('schedule')}
-              </h2>
+              <div className="flex items-center gap-2 mb-5">
+                <CalendarDays className="h-4 w-4 text-gold" />
+                <h2 className="font-heading text-xl font-bold text-darkBrown">
+                  {t('schedule')}
+                </h2>
+              </div>
 
               {event.shows.length === 0 ? (
-                <p className="text-brown/50 text-sm">{tCommon('noResults')}</p>
+                <div className="text-center py-12 rounded-2xl border border-brown/10 bg-white">
+                  <CalendarDays className="w-10 h-10 text-brown/20 mx-auto mb-3" />
+                  <p className="text-brown/40 text-sm">{tCommon('noResults')}</p>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {event.shows.map((show: ShowItem) => {
@@ -342,32 +368,35 @@ export default async function EventDetailPage({ params }: PageProps) {
                     return (
                       <div
                         key={show.id}
-                        className="flex flex-col gap-3 rounded-xl border border-brown/10 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+                        className="flex flex-col gap-4 rounded-2xl border border-brown/10 bg-white p-5 sm:flex-row sm:items-center sm:justify-between shadow-sm hover:shadow-md hover:border-gold/30 transition-all duration-300"
                       >
-                        <div className="flex flex-col gap-1.5">
-                          <div className="flex items-center gap-2 font-semibold text-darkBrown">
-                            <CalendarDays className="h-4 w-4 text-burgundy" />
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 font-heading font-bold text-darkBrown text-lg">
+                            <CalendarDays className="h-5 w-5 text-burgundy" />
                             {formatDateTime(show.dateTime, dateLocale)}
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-brown/60">
-                            <MapPin className="h-3.5 w-3.5 text-gold" />
-                            {show.hall.name}
+                          <div className="flex items-center gap-4 text-sm text-brown/60">
+                            <span className="flex items-center gap-1.5">
+                              <MapPin className="h-4 w-4 text-gold" />
+                              {show.hall.name}
+                            </span>
+                            {showMinPrice !== null && showMaxPrice !== null && (
+                              <span className="flex items-center gap-1.5 font-semibold text-burgundy">
+                                <Ticket className="h-4 w-4" />
+                                {showMinPrice === showMaxPrice
+                                  ? formatPrice(showMinPrice)
+                                  : `${formatPrice(showMinPrice)} – ${formatPrice(showMaxPrice)}`}
+                              </span>
+                            )}
                           </div>
-                          {showMinPrice !== null && showMaxPrice !== null && (
-                            <div className="flex items-center gap-1.5 text-sm text-burgundy font-medium">
-                              <Ticket className="h-3.5 w-3.5" />
-                              {showMinPrice === showMaxPrice
-                                ? formatPrice(showMinPrice)
-                                : `${formatPrice(showMinPrice)} – ${formatPrice(showMaxPrice)}`}
-                            </div>
-                          )}
                         </div>
-                        <Button asChild variant="default" size="md" className="shrink-0">
-                          <Link href={`/${locale}/shows/${show.id}/seats`}>
-                            {t('selectSeats')}
-                            <ChevronRight className="h-4 w-4" />
-                          </Link>
-                        </Button>
+                        <Link
+                          href={`/${locale}/shows/${show.id}/seats`}
+                          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-gold to-gold-light text-darkBrown font-bold rounded-full shadow-gold hover:shadow-gold-lg hover:scale-105 transition-all duration-300 text-sm uppercase tracking-wider shrink-0"
+                        >
+                          {t('selectSeats')}
+                          <ChevronRight className="h-4 w-4" />
+                        </Link>
                       </div>
                     )
                   })}
@@ -376,68 +405,62 @@ export default async function EventDetailPage({ params }: PageProps) {
             </section>
           </div>
 
-          {/* Right: price table (sticky on desktop) */}
+          {/* Right: price table (sticky) */}
           <div className="lg:col-span-1">
-            <div className="sticky top-20 rounded-xl border border-brown/10 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 font-heading text-lg font-semibold text-darkBrown">
-                {t('prices')}
-              </h2>
+            <div className="sticky top-20 rounded-2xl border border-gold/20 bg-gradient-to-b from-darkBrown to-[#1A1A1A] p-6 shadow-card">
+              <div className="flex items-center gap-2 mb-5">
+                <Ticket className="h-4 w-4 text-gold" />
+                <h2 className="font-heading text-lg font-bold text-cream">
+                  {t('prices')}
+                </h2>
+              </div>
 
               {priceRows.length === 0 ? (
-                <p className="text-sm text-brown/50">{tCommon('noResults')}</p>
+                <p className="text-sm text-cream/40">{tCommon('noResults')}</p>
               ) : (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-brown/10">
-                      <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-brown/50">
-                        {locale === 'ru' ? 'Сектор' : locale === 'kz' ? 'Сектор' : 'بۆلۈم'}
-                      </th>
-                      <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider text-brown/50">
-                        {locale === 'ru' ? 'Тип' : locale === 'kz' ? 'Түрі' : 'تۈرى'}
-                      </th>
-                      <th className="pb-2 text-right text-xs font-semibold uppercase tracking-wider text-brown/50">
-                        {locale === 'ru' ? 'Цена' : locale === 'kz' ? 'Баға' : 'باھا'}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {priceRows.map((row, idx) => (
-                      <tr
-                        key={idx}
-                        className="border-b border-brown/5 last:border-0"
-                      >
-                        <td className="py-2.5">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="h-3 w-3 flex-shrink-0 rounded-full"
-                              style={{ backgroundColor: row.sectorColor }}
-                            />
-                            <span className="text-brown">{row.sectorName}</span>
-                          </div>
-                        </td>
-                        <td className="py-2.5 text-brown/70">
-                          {seatTypeLabel[row.seatType] ?? row.seatType}
-                        </td>
-                        <td className="py-2.5 text-right font-semibold text-burgundy">
-                          {formatPrice(row.price)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-
-              {/* CTA button — links to first show's seat selection */}
-              {event.shows[0] && (
-                <div className="mt-6">
-                  <Button asChild variant="default" size="lg" className="w-full">
-                    <Link href={`/${locale}/shows/${event.shows[0].id}/seats`}>
-                      <Ticket className="h-4 w-4" />
-                      {t('selectSeats')}
-                    </Link>
-                  </Button>
+                <div className="space-y-2">
+                  {priceRows.map((row, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between py-3 px-3 rounded-lg bg-white/5 border border-white/5"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="h-3 w-3 flex-shrink-0 rounded-full ring-2 ring-white/10"
+                          style={{ backgroundColor: row.sectorColor }}
+                        />
+                        <div>
+                          <p className="text-cream text-sm font-medium">{row.sectorName}</p>
+                          <p className="text-cream/40 text-xs">{seatTypeLabel[row.seatType] ?? row.seatType}</p>
+                        </div>
+                      </div>
+                      <span className="font-heading font-bold text-gold text-lg">
+                        {formatPrice(row.price)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
+
+              {/* CTA */}
+              {event.shows[0] && (
+                <div className="mt-6">
+                  <Link
+                    href={`/${locale}/shows/${event.shows[0].id}/seats`}
+                    className="flex items-center justify-center gap-2 w-full px-6 py-4 bg-gradient-to-r from-gold to-gold-light text-darkBrown font-bold rounded-full shadow-gold hover:shadow-gold-lg hover:scale-[1.02] transition-all duration-300 text-sm uppercase tracking-wider"
+                  >
+                    <Ticket className="h-4 w-4" />
+                    {t('selectSeats')}
+                  </Link>
+                </div>
+              )}
+
+              {/* Ornamental divider */}
+              <div className="mt-5 pt-4 border-t border-white/10">
+                <p className="text-cream/20 text-[10px] text-center uppercase tracking-[0.2em]">
+                  Ұйғыр театры
+                </p>
+              </div>
             </div>
           </div>
         </div>
